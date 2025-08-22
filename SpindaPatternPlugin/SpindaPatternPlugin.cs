@@ -74,21 +74,20 @@ public sealed class SpindaPatternPlugin : IPlugin
             var historyButton = FindControl(editor, "BTN_History") as Button;
             if (historyButton?.Parent == null)
                 return;
-            
+
             spotsButton = new Button
             {
                 Text = "Spots",
                 Name = "BTN_Spots",
                 Size = new Size(60, 27),
                 UseVisualStyleBackColor = true,
-                Visible = false
+                Visible = false,
+                Location = new Point(
+                    historyButton.Location.X + historyButton.Width + 4,
+                    historyButton.Location.Y
+                )
             };
-            
-            spotsButton.Location = new Point(
-                historyButton.Location.X + historyButton.Width + 4,
-                historyButton.Location.Y
-            );
-            
+
             spotsButton.Click += ShowPatternEditor;
             historyButton.Parent.Controls.Add(spotsButton);
         }
@@ -97,7 +96,7 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
     }
     
-    private Control? FindControl(Control parent, string name)
+    private static Control? FindControl(Control parent, string name)
     {
         if (parent.Name == name)
             return parent;
