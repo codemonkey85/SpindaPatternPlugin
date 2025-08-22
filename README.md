@@ -1,5 +1,9 @@
 # Spinda Pattern Plugin for PKHeX
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/hexbyt3/SpindaPatternPlugin/total?style=flat-square&logoColor=Red&color=red)  ![GitHub Release](https://img.shields.io/github/v/release/hexbyt3/SpindaPatternPlugin)
+
+
+
 A PKHeX plugin that provides an advanced editor for Spinda spot patterns with proper support for BDSP endianness handling.
 
 ## Features
@@ -9,6 +13,9 @@ A PKHeX plugin that provides an advanced editor for Spinda spot patterns with pr
 - **BDSP Endianness Fix**: Correctly handles the byte-order bug in Brilliant Diamond/Shining Pearl where Encryption Constants are read as big-endian instead of little-endian
 - Shiny pattern preview
 - Randomize patterns with shiny support
+
+## Screenshots
+<img width="710" height="512" alt="image" src="https://github.com/user-attachments/assets/ce0dd729-bd8e-49ff-a6d5-d0389c435aef" />
 
 ## Installation
 
