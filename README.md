@@ -6,6 +6,10 @@
 
 A PKHeX plugin that provides an advanced editor for Spinda spot patterns with proper support for BDSP endianness handling.
 
+## About
+
+The different spot patterns are generated based on Spinda's personality value, a hidden statistic in the Pokémon games. This value is a 32-bit number, which results in the possibility of 4,294,967,296 unique patterns (doubled if you consider also its shiny variant). So, every time you encounter a Spinda, you're meeting a truly unique Pokémon!
+
 ## Features
 
 - Visual Spinda pattern editor with real-time preview
