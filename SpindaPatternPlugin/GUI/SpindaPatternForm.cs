@@ -13,14 +13,6 @@ namespace SpindaPatternPlugin.GUI;
 public partial class SpindaPatternForm : Form
 {
     private readonly PKM pokemon;
-    private PictureBox pictureBox = null!;
-    private TextBox patternInput = null!;
-    private Button randomizeButton = null!;
-    private Button applyButton = null!;
-    private Button cancelButton = null!;
-    private CheckBox shinyCheckbox = null!;
-    private Label patternLabel = null!;
-    
     private Image? baseSprite;
     private Image? shinySprite;
     private Image? headMask;
@@ -45,6 +37,7 @@ public partial class SpindaPatternForm : Form
         }
         
         InitializeComponent();
+        SetupFormAfterInit();
         LoadSprites();
         UpdatePreview();
     }
@@ -59,84 +52,11 @@ public partial class SpindaPatternForm : Form
                ((value & 0xFF000000) >> 24);
     }
 
-    private void InitializeComponent()
+    private void SetupFormAfterInit()
     {
-        Text = "Spinda Pattern Editor";
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(400, 500);
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-
-        pictureBox = new PictureBox
-        {
-            Location = new Point(50, 20),
-            Size = new Size(300, 300),
-            SizeMode = PictureBoxSizeMode.Zoom,
-            BorderStyle = BorderStyle.FixedSingle,
-            BackColor = Color.White
-        };
-        Controls.Add(pictureBox);
-
-        patternLabel = new Label
-        {
-            Text = usePID ? "PID:" : "Encryption Constant:",
-            Location = new Point(50, 340),
-            Size = new Size(120, 23),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-        Controls.Add(patternLabel);
-
-        patternInput = new TextBox
-        {
-            Location = new Point(175, 340),
-            Size = new Size(100, 23),
-            Font = new Font("Courier New", 9),
-            MaxLength = 8,
-            CharacterCasing = CharacterCasing.Upper
-        };
-        patternInput.TextChanged += OnPatternChanged;
-        Controls.Add(patternInput);
-
-        shinyCheckbox = new CheckBox
-        {
-            Text = "Shiny",
-            Location = new Point(285, 340),
-            Size = new Size(65, 23),
-            Checked = pokemon.IsShiny
-        };
-        shinyCheckbox.CheckedChanged += OnShinyToggled;
-        Controls.Add(shinyCheckbox);
-
-        randomizeButton = new Button
-        {
-            Text = "Randomize",
-            Location = new Point(50, 380),
-            Size = new Size(100, 30)
-        };
-        randomizeButton.Click += OnRandomize;
-        Controls.Add(randomizeButton);
-
-        applyButton = new Button
-        {
-            Text = "Apply",
-            Location = new Point(170, 430),
-            Size = new Size(75, 30),
-            DialogResult = DialogResult.OK
-        };
-        applyButton.Click += OnApply;
-        Controls.Add(applyButton);
-
-        cancelButton = new Button
-        {
-            Text = "Cancel",
-            Location = new Point(255, 430),
-            Size = new Size(75, 30),
-            DialogResult = DialogResult.Cancel
-        };
-        Controls.Add(cancelButton);
-
+        patternLabel.Text = usePID ? "PID:" : "Encryption Constant:";
+        shinyCheckbox.Checked = pokemon.IsShiny;
         patternInput.Text = patternValue.ToString("X8");
     }
 
@@ -517,17 +437,4 @@ public partial class SpindaPatternForm : Form
         Close();
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            baseSprite?.Dispose();
-            shinySprite?.Dispose();
-            headMask?.Dispose();
-            faceOverlay?.Dispose();
-            mouthOverlay?.Dispose();
-            pictureBox.Image?.Dispose();
-        }
-        base.Dispose(disposing);
-    }
 }

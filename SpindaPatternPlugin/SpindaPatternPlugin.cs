@@ -58,7 +58,20 @@ public sealed class SpindaPatternPlugin : IPlugin
         // Initial visibility check if a save is already loaded
         if (SaveFileEditor?.SAV != null)
         {
-            bool spindaAvailable = SaveFileEditor.SAV.Personal.IsSpeciesInGame((ushort)Species.Spinda);
+            bool spindaAvailable = SaveFileEditor.SAV switch
+            {
+                SAV3 => true,
+                SAV4 => true,
+                SAV5 => true,
+                SAV6 => true,
+                SAV7 => true,
+                SAV7b => false,
+                SAV8SWSH => true,
+                SAV8LA => false,
+                SAV8BS => true,
+                SAV9SV => false,
+                _ => false
+            };
             menuItem.Visible = spindaAvailable;
             menuItem.Enabled = spindaAvailable;
         }
@@ -79,9 +92,11 @@ public sealed class SpindaPatternPlugin : IPlugin
             {
                 Text = "Spots",
                 Name = "BTN_Spots",
-                Size = new Size(60, 27),
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 UseVisualStyleBackColor = true,
                 Visible = false,
+                Margin = new Padding(4, 0, 4, 0),
                 Location = new Point(
                     historyButton.Location.X + historyButton.Width + 4,
                     historyButton.Location.Y
@@ -200,8 +215,22 @@ public sealed class SpindaPatternPlugin : IPlugin
     {
         if (menuItem != null && SaveFileEditor.SAV != null)
         {
-            // Check if Spinda is available in this game using PKHeX's PersonalTable
-            bool spindaAvailable = SaveFileEditor.SAV.Personal.IsSpeciesInGame((ushort)Species.Spinda);
+            // Spinda exists in Gen 3-8 games (except Let's Go and Legends Arceus)
+            // Simply check if this is a game where Spinda should exist
+            bool spindaAvailable = SaveFileEditor.SAV switch
+            {
+                SAV3 => true,          // Ruby/Sapphire/Emerald/FireRed/LeafGreen
+                SAV4 => true,          // Diamond/Pearl/Platinum/HeartGold/SoulSilver
+                SAV5 => true,          // Black/White/Black2/White2
+                SAV6 => true,          // X/Y/OmegaRuby/AlphaSapphire
+                SAV7 => true,          // Sun/Moon/UltraSun/UltraMoon (but not Let's Go)
+                SAV7b => false,        // Let's Go Pikachu/Eevee (no Spinda)
+                SAV8SWSH => true,      // Sword/Shield
+                SAV8LA => false,       // Legends Arceus (no Spinda)
+                SAV8BS => true,        // Brilliant Diamond/Shining Pearl
+                SAV9SV => false,       // Scarlet/Violet (no Spinda)
+                _ => false
+            };
             
             // Hide the menu item completely if Spinda doesn't exist in this game
             menuItem.Visible = spindaAvailable;
@@ -219,13 +248,10 @@ public sealed class SpindaPatternPlugin : IPlugin
         try
         {
             var pk = PKMEditor.Data;
-            // Only show button if:
-            // 1. Current Pokémon is Spinda
-            // 2. Spinda exists in this game's data
+            // Only show button if current Pokémon is Spinda
             bool isSpinda = pk.Species == (ushort)Species.Spinda;
-            bool spindaInGame = SaveFileEditor?.SAV?.Personal.IsSpeciesInGame((ushort)Species.Spinda) ?? false;
             
-            spotsButton.Visible = isSpinda && spindaInGame;
+            spotsButton.Visible = isSpinda;
         }
         catch
         {
