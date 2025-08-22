@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SpindaPatternPlugin</AssemblyName>
+    <RootNamespace>SpindaPatternPlugin</RootNamespace>
+    <Authors>Your Name</Authors>
+    <Description>PKHeX Plugin for editing Spinda spot patterns with BDSP endianness fix</Description>
+    <Version>1.0.0</Version>
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PKHeX.Core">
+      <HintPath>Deps\PKHeX.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="GUI\SpindaPatternForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
