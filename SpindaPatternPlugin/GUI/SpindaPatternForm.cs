@@ -69,8 +69,7 @@ public partial class SpindaPatternForm : Form
                 System.IO.Path.Combine(Application.StartupPath, "Resources", "img", "spinda"),
                 System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.ExecutablePath) ?? "", "Resources", "img", "spinda"),
                 System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "img", "spinda"),
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "SpindaPatternPlugin", "Resources", "img", "spinda"),
-                @"C:\Users\Brand\source\repos\SpindaPatternPlugin\SpindaPatternPlugin\Resources\img\spinda",
+                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "SpindaPatternPlugin", "Resources", "img", "spinda")
             ];
             
             string? resourcePath = null;
