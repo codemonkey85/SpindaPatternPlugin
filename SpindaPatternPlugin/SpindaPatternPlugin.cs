@@ -12,28 +12,61 @@ namespace SpindaPatternPlugin;
 /// </summary>
 public sealed class SpindaPatternPlugin : IPlugin
 {
+    /// <summary>
+    /// Gets the plugin name shown in PKHeX's Tools menu.
+    /// </summary>
     public string Name => "Spinda Pattern Editor";
+    
+    /// <summary>
+    /// Gets the loading priority. Higher numbers load first.
+    /// </summary>
     public int Priority => 1;
 
+    /// <summary>
+    /// Gets or sets the save file editor from PKHeX.
+    /// </summary>
     public ISaveFileProvider SaveFileEditor { get; private set; } = null!;
+    
+    /// <summary>
+    /// Gets or sets the Pokémon editor from PKHeX.
+    /// </summary>
     public IPKMView PKMEditor { get; private set; } = null!;
+    
+    /// <summary>
+    /// The menu item added to PKHeX's Tools menu.
+    /// </summary>
     private ToolStripMenuItem? menuItem;
+    
+    /// <summary>
+    /// The Spots button shown when editing a Spinda.
+    /// </summary>
     private Button? spotsButton;
 
+    /// <summary>
+    /// Sets up the plugin with PKHeX.
+    /// </summary>
+    /// <param name="args">Tools and editors from PKHeX.</param>
     public void Initialize(params object[] args)
     {
-        SaveFileEditor = (ISaveFileProvider)Array.Find(args, z => z is ISaveFileProvider)!;
-        PKMEditor = (IPKMView)Array.Find(args, z => z is IPKMView)!;
-        var menu = (ToolStrip)Array.Find(args, z => z is ToolStrip)!;
+        // Get the tools we need from PKHeX
+        SaveFileEditor = (ISaveFileProvider?)Array.Find(args, z => z is ISaveFileProvider) 
+            ?? throw new ArgumentException("Save file editor not found");
+        PKMEditor = (IPKMView?)Array.Find(args, z => z is IPKMView) 
+            ?? throw new ArgumentException("Pokémon editor not found");
+        var menu = (ToolStrip?)Array.Find(args, z => z is ToolStrip) 
+            ?? throw new ArgumentException("Menu not found");
         SetupMenu(menu);
         
         CreateSpotsButton();
         
+        // Watch for changes to show/hide the Spots button
+        // The button only shows when editing a Spinda
         if (PKMEditor is Control control)
         {
             control.Enter += (_, _) => RefreshButtonVisibility();
             control.Leave += (_, _) => RefreshButtonVisibility();
             
+            // Also watch when the user picks a different Pokémon
             var speciesControl = FindControl(control, "CB_Species");
             if (speciesControl is ComboBox speciesCombo)
             {
@@ -42,11 +75,16 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Sets up the plugin's menu item in PKHeX's Tools menu.
+    /// </summary>
+    /// <param name="menuStrip">The main menu strip from PKHeX.</param>
     private void SetupMenu(ToolStrip menuStrip)
     {
         var items = menuStrip.Items;
-        if (items.Find("Menu_Tools", false)[0] is not ToolStripDropDownItem tools)
-            throw new ArgumentException(null, nameof(menuStrip));
+        var toolsItems = items.Find("Menu_Tools", false);
+        if (toolsItems.Length == 0 || toolsItems[0] is not ToolStripDropDownItem tools)
+            throw new ArgumentException("Menu_Tools not found in menu strip", nameof(menuStrip));
         
         menuItem = new ToolStripMenuItem(Name)
         {
@@ -55,7 +93,8 @@ public sealed class SpindaPatternPlugin : IPlugin
         menuItem.Click += ShowPatternEditor;
         tools.DropDownItems.Add(menuItem);
         
-        // Initial visibility check if a save is already loaded
+        // Check if this game has Spinda
+        // Hide the menu for games that don't have Spinda
         if (SaveFileEditor?.SAV != null)
         {
             bool spindaAvailable = SaveFileEditor.SAV switch
@@ -77,6 +116,9 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
     }
     
+    /// <summary>
+    /// Creates a contextual "Spots" button next to the existing cosmetics buttons.
+    /// </summary>
     private void CreateSpotsButton()
     {
         try
@@ -84,6 +126,8 @@ public sealed class SpindaPatternPlugin : IPlugin
             if (PKMEditor is not Control editor)
                 return;
                 
+            // Find the History button to place our button next to it
+            // This keeps all the appearance buttons together
             var historyButton = FindControl(editor, "BTN_History") as Button;
             if (historyButton?.Parent == null)
                 return;
@@ -108,9 +152,16 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
         catch
         {
+            // If button creation fails, don't crash - the menu will still work
         }
     }
     
+    /// <summary>
+    /// Looks for a control by name.
+    /// </summary>
+    /// <param name="parent">Where to start looking.</param>
+    /// <param name="name">The control name to find.</param>
+    /// <returns>The control if found, null otherwise.</returns>
     private static Control? FindControl(Control parent, string name)
     {
         if (parent.Name == name)
@@ -126,15 +177,22 @@ public sealed class SpindaPatternPlugin : IPlugin
         return null;
     }
 
+    /// <summary>
+    /// Shows the Spinda pattern editor dialog.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event arguments.</param>
     private void ShowPatternEditor(object? sender, EventArgs e)
     {
-        var pk = PKMEditor.Data;
-        if (!pk.Valid || pk.Species == 0)
+        var pk = PKMEditor?.Data;
+        if (pk == null || !pk.Valid || pk.Species == 0)
         {
             MessageBox.Show("Please select a valid Pokémon first.", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
+        // If it's not Spinda, offer to make one
+        // This lets users try patterns without making a Spinda first
         if (pk.Species != (ushort)Species.Spinda)
         {
             var result = MessageBox.Show(
@@ -154,14 +212,14 @@ public sealed class SpindaPatternPlugin : IPlugin
             }
             
             pk = spinda;
-            PKMEditor.PopulateFields(pk);
+            PKMEditor?.PopulateFields(pk);
         }
 
         using var form = new SpindaPatternForm(pk);
         if (form.ShowDialog() == DialogResult.OK)
         {
-            PKMEditor.PopulateFields(pk);
-            SaveFileEditor.ReloadSlots();
+            PKMEditor?.PopulateFields(pk);
+            SaveFileEditor?.ReloadSlots();
         }
     }
     
@@ -178,6 +236,8 @@ public sealed class SpindaPatternPlugin : IPlugin
             template.Form = 0;
             template.Gender = template.GetSaneGender();
             
+            // Find valid ways to get Spinda in this game
+            // Skip eggs to get a ready-to-use Spinda
             var moves = new ushort[4];
             template.GetMoves(moves);
             var encounters = EncounterMovesetGenerator.GenerateEncounters(template, sav, moves)
@@ -189,6 +249,8 @@ public sealed class SpindaPatternPlugin : IPlugin
             
             var spinda = encounters[0].ConvertToPKM(sav);
             
+            // Make sure Spinda matches the save file format
+            // Different game versions use different data formats
             var destType = template.GetType();
             if (spinda.GetType() != destType)
             {
@@ -211,12 +273,15 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Called when a save file is loaded. Updates menu visibility.
+    /// </summary>
     public void NotifySaveLoaded()
     {
-        if (menuItem != null && SaveFileEditor.SAV != null)
+        if (menuItem != null && SaveFileEditor?.SAV != null)
         {
-            // Spinda exists in Gen 3-8 games (except Let's Go and Legends Arceus)
-            // Simply check if this is a game where Spinda should exist
+            // Check if this game has Spinda
+            // Hide the plugin for games without Spinda
             bool spindaAvailable = SaveFileEditor.SAV switch
             {
                 SAV3 => true,          // Ruby/Sapphire/Emerald/FireRed/LeafGreen
@@ -240,15 +305,19 @@ public sealed class SpindaPatternPlugin : IPlugin
         RefreshButtonVisibility();
     }
     
+    /// <summary>
+    /// Updates the visibility of the Spots button based on the currently selected Pokémon.
+    /// </summary>
     private void RefreshButtonVisibility()
     {
-        if (spotsButton == null)
+        if (spotsButton == null || PKMEditor == null)
             return;
             
         try
         {
             var pk = PKMEditor.Data;
-            // Only show button if current Pokémon is Spinda
+            // Only show the button for Spinda
+            // This keeps the UI clean
             bool isSpinda = pk.Species == (ushort)Species.Spinda;
             
             spotsButton.Visible = isSpinda;
@@ -259,6 +328,11 @@ public sealed class SpindaPatternPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Attempts to load a file. Not implemented for this plugin.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <returns>Always returns false as this plugin doesn't handle file loading.</returns>
     public bool TryLoadFile(string filePath)
     {
         return false;

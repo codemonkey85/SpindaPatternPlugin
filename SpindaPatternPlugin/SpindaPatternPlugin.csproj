@@ -27,4 +27,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\img\spinda\*.png" />
+  </ItemGroup>
+
 </Project>
