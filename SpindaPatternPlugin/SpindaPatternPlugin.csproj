@@ -15,13 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="PKHeX.Core">
-      <HintPath>Deps\PKHeX.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="GUI\SpindaPatternForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -29,6 +22,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\img\spinda\*.png" />
+    <EmbeddedResource Include="Resources\spinda.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PKHeX.Core" Version="25.6.9" />
   </ItemGroup>
 
 </Project>

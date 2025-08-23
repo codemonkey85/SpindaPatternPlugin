@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using PKHeX.Core;
 using SpindaPatternPlugin.GUI;
@@ -88,7 +89,8 @@ public sealed class SpindaPatternPlugin : IPlugin
         
         menuItem = new ToolStripMenuItem(Name)
         {
-            ShortcutKeys = Keys.Control | Keys.Shift | Keys.S
+            ShortcutKeys = Keys.Control | Keys.Shift | Keys.S,
+            Image = GetSpindaIcon()
         };
         menuItem.Click += ShowPatternEditor;
         tools.DropDownItems.Add(menuItem);
@@ -115,7 +117,22 @@ public sealed class SpindaPatternPlugin : IPlugin
             menuItem.Enabled = spindaAvailable;
         }
     }
-    
+
+    /// <summary>
+    /// Gets the Spinda icon for the menu.
+    /// </summary>
+    /// <returns>A 16x16 Spinda icon for the menu.</returns>
+    private static Image GetSpindaIcon()
+    {
+        // Load the icon from embedded resources
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = "SpindaPatternPlugin.Resources.spinda.ico";
+        
+        using var stream = assembly.GetManifestResourceStream(resourceName)!;
+        using var icon = new Icon(stream, 16, 16);
+        return icon.ToBitmap();
+    }
+
     /// <summary>
     /// Creates a contextual "Spots" button next to the existing cosmetics buttons.
     /// </summary>
