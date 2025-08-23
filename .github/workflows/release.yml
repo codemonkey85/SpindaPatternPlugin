@@ -2,7 +2,7 @@ name: Build and Release
 on:
   push:
     paths:
-      - "SpindaPatternPlugin/Deps/PKHeX.Core.dll"
+      - "SpindaPatternPlugin/SpindaPatternPlugin.csproj"
   workflow_dispatch:
 permissions:
   contents: write
@@ -19,14 +19,14 @@ jobs:
         run: dotnet restore SpindaPatternPlugin.sln
       - name: Build
         run: dotnet build SpindaPatternPlugin.sln -c Release --no-restore
-      - name: Extract version from PKHeX.Core.dll
+      - name: Extract PKHeX version from project file
         id: ver
         shell: pwsh
         run: |
-          $dll = "SpindaPatternPlugin/Deps/PKHeX.Core.dll"
-          $version = [System.Reflection.Assembly]::LoadFrom((Resolve-Path $dll)).GetName().Version
-          $versionString = "$($version.Major).$($version.Minor).$($version.Build)"
-          echo "version=$versionString" >> $env:GITHUB_OUTPUT
+          $csproj = "SpindaPatternPlugin/SpindaPatternPlugin.csproj"
+          $xml = [xml](Get-Content $csproj)
+          $pkHexVersion = $xml.Project.ItemGroup.PackageReference | Where-Object { $_.Include -eq "PKHeX.Core" } | Select-Object -ExpandProperty Version
+          echo "version=$pkHexVersion" >> $env:GITHUB_OUTPUT
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
