@@ -23,7 +23,7 @@ The different spot patterns are generated based on Spinda's personality value, a
 
 ## Installation
 
-1. Download the latest `SpindaPatternPlugin.dll` from the [Releases](https://github.com/yourusername/SpindaPatternPlugin/releases) page
+1. Download the latest `SpindaPatternPlugin.dll` from the [Releases](https://github.com/hexbyt3/SpindaPatternPlugin/releases) page
 2. Place the DLL file in your PKHeX `plugins` folder
 5. Restart PKHeX
 
