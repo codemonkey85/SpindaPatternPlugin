@@ -272,7 +272,7 @@ public sealed class SpindaPatternPlugin : IPlugin
             if (spinda.GetType() != destType)
             {
                 var converted = EntityConverter.ConvertToType(spinda, destType, out var result);
-                if (converted != null && result.IsSuccess())
+                if (converted != null && result.IsSuccess)
                     spinda = converted;
             }
             
